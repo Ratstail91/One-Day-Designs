@@ -24,7 +24,7 @@
 //DOCS: this is a generic CSV reading tool
 //DOCS: empty lines and comment lines begining with '#' are ignored
 //DOCS: whitespace characters are valid field values
-//DOCS: if the file is invalid, then the behaviour is undefined
+//DOCS: if the file is invalid, then the behavior is undefined
 
 #include <array>
 #include <cstring>
@@ -42,10 +42,10 @@ template<int N>
 using CSVObject = std::vector<CSVElement<N>>;
 
 //read a file into an object
-template<int N, char delim = ','>
-CSVObject<N> readCSV(std::string fname) {
+template<int N>
+CSVObject<N> readCSV(std::string fname, char delim = ',') {
 	//open the file
-	std::fstream is(fname);
+	std::ifstream is(fname);
 
 	if (!is.is_open()) {
 		std::ostringstream msg;
@@ -93,4 +93,33 @@ CSVObject<N> readCSV(std::string fname) {
 	is.close();
 
 	return object;
+}
+
+template<int N>
+void writeCSV(std::string fname, CSVObject<N> const& object, char delim = ',') {
+	//open the file
+	std::ofstream os(fname);
+
+	if (!os.is_open()) {
+		std::ostringstream msg;
+		msg << "Failed to open file: " << fname;
+		throw(std::runtime_error(msg.str()));
+	}
+
+	//write each record, one at a time
+	for(auto& record : object) {
+		//write each field, one at a time
+		for (int i = 0; i < N; i++) {
+			os << record[i];
+
+			//print delimiter
+			if (i != N -1) {
+				os << delim;
+			}
+		}
+		os << std::endl;
+	}
+
+	//finish
+	os.close();
 }
